@@ -746,7 +746,7 @@ layer {
   }
 }
 layer {
-  name: "id_loss"
+  name: "id_loss_sub"
   type: "HybridSoftmaxLoss"
   bottom: "feat"
   bottom: "pid_label"
@@ -767,7 +767,7 @@ layer {
       type: "gaussian"
       std: 0.01
     }
-    random_sampling_num: 100
+    random_sampling_num: 10
     random_sampling_policy: "random"
   }
 }

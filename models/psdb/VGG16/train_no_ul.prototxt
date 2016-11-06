@@ -724,32 +724,6 @@ layer {
   type: "HybridSoftmaxLoss"
   bottom: "feat"
   bottom: "pid_label"
-  top: "id_loss"
-  propagate_down: 0
-  propagate_down: 0
-  param {
-    name: "W_id"
-    lr_mult: 0
-    decay_mult: 0
-  }
-  loss_weight: 0
-  hybrid_softmax_loss_param {
-    num_classes: 5532
-    unlabeled_pool_size: 1000
-    unlabeled_score_weight: 0
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    random_sampling_num: 5532
-    random_sampling_policy: "random"
-  }
-}
-layer {
-  name: "id_loss"
-  type: "HybridSoftmaxLoss"
-  bottom: "feat"
-  bottom: "pid_label"
   top: "id_loss_sub"
   propagate_down: 1
   propagate_down: 0
@@ -761,8 +735,8 @@ layer {
   loss_weight: 1
   hybrid_softmax_loss_param {
     num_classes: 5532
-    unlabeled_pool_size: 1000
-    unlabeled_score_weight: 0.0001
+    unlabeled_pool_size: 0
+    unlabeled_score_weight: 0
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -771,4 +745,29 @@ layer {
     random_sampling_policy: "random"
   }
 }
-
+layer {
+  name: "id_loss"
+  type: "HybridSoftmaxLoss"
+  bottom: "feat"
+  bottom: "pid_label"
+  top: "id_loss"
+  propagate_down: 0
+  propagate_down: 0
+  param {
+    name: "W_id"
+    lr_mult: 0
+    decay_mult: 0
+  }
+  loss_weight: 0
+  hybrid_softmax_loss_param {
+    num_classes: 5532
+    unlabeled_pool_size: 0
+    unlabeled_score_weight: 0
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    random_sampling_num: 5532
+    random_sampling_policy: "random"
+  }
+}

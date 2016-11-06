@@ -746,7 +746,7 @@ layer {
   }
 }
 layer {
-  name: "id_loss"
+  name: "id_loss_sub"
   type: "HybridSoftmaxLoss"
   bottom: "feat"
   bottom: "pid_label"
