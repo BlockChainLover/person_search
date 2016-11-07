@@ -37,8 +37,9 @@ LOG="experiments/logs/${DATASET}_train_${NET}_${EXTRA_ARGS_SLUG}.txt.`date +'%Y-
 exec &> >(tee -a "$LOG")
 echo Logging output to "$LOG"
 
-time python2 tools/train_net.py --gpu ${GPU_ID} \
+time mpirun -n 8 python2 tools/train_net.py --gpu ${GPU_ID} \
   --solver models/${PT_DIR}/${NET}/solver.prototxt \
+  --snapshot output/psdb_train/VGG16_matching_trial_1/VGG16_iter_30000.solverstate \
   --weights data/imagenet_models/${NET}.v2.caffemodel \
   --imdb ${TRAIN_IMDB} \
   --iters ${ITERS} \

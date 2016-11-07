@@ -16,4 +16,3 @@ weight_decay: 0.0005
 snapshot: 10000
 snapshot_prefix: "VGG16"
 
-iter_size: 2
