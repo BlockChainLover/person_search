@@ -1,7 +1,6 @@
 mem_param {
   optimize_train: false
   optimize_test: false
-  exclude_blob: "feat"
 }
 name: "ResNet50"
 
@@ -2827,40 +2826,6 @@ layer {
 }
 
 
-#================================== detection ==================================
-layer {
-  name: "det_score"
-  type: "InnerProduct"
-  bottom: "caffe.Pooling_168"
-  top: "det_score"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 2
-    weight_filler {
-      type: "gaussian"
-      std: 0.001
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-layer {
-  name: "pid_prob"
-  type: "Softmax"
-  bottom: "det_score"
-  top: "pid_prob"
-}
-
-
 #================================== bbox regression ==================================
 layer {
   name: "bbox_pred"
@@ -2889,10 +2854,10 @@ layer {
 
 #================================== identification ==================================
 layer {
-  name: "feat_lowdim"
+  name: "feat_raw"
   type: "InnerProduct"
   bottom: "caffe.Pooling_168"
-  top: "feat_lowdim"
+  top: "feat_raw"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -2913,9 +2878,39 @@ layer {
   }
 }
 layer {
-  name: "feat"
-  type: "Normalize"
-  bottom: "feat_lowdim"
+  name: "feat_bn"
+  type: "BN"
+  bottom: "feat_raw"
+  top: "feat"
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
+  bn_param {
+    slope_filler {
+      value: 1
+    }
+    bias_filler {
+      value: 0
+    }
+  }
+}
+layer {
+  name: "feat_relu"
+  type: "ReLU"
+  bottom: "feat"
   top: "feat"
 }
-
+layer {
+  name: "feat_dropout"
+  type: "Dropout"
+  bottom: "feat"
+  top: "feat"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}

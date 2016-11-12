@@ -33,7 +33,7 @@ case $DATASET in
     ;;
 esac
 
-LOG="experiments/logs/${DATASET}_train_${NET}_${EXTRA_ARGS_SLUG}.txt.`date +'%Y-%m-%d_%H-%M-%S'`"
+LOG="experiments/logs/${DATASET}_train_${NET}_softmax_from_scratch.log"
 exec &> >(tee -a "$LOG")
 echo Logging output to "$LOG"
 
@@ -44,6 +44,7 @@ mpirun -n 8 python2 tools/train_net.py --gpu ${GPU_ID} \
   --iters ${ITERS} \
   --cfg experiments/cfgs/train_resnet50.yml \
   --rand \
+  --set EXP_DIR resnet50_softmax_from_scratch \
   ${EXTRA_ARGS}
 
 set +x
