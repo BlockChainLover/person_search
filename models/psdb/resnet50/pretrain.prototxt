@@ -1849,7 +1849,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -1901,7 +1900,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -1960,7 +1958,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2012,7 +2009,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2064,7 +2060,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2123,7 +2118,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2175,7 +2169,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2227,7 +2220,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2286,7 +2278,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2338,7 +2329,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2390,7 +2380,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2472,7 +2461,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2524,7 +2512,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2576,7 +2563,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2635,7 +2621,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2687,7 +2672,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2739,7 +2723,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2798,7 +2781,6 @@ layer {
     decay_mult: 0
   }
   bn_param {
-    frozen: true
     slope_filler {
       value: 1
     }
@@ -2829,10 +2811,10 @@ layer {
   }
 }
 layer {
-  name: "feat"
+  name: "feat_raw"
   type: "InnerProduct"
   bottom: "caffe.Pooling_168"
-  top: "feat"
+  top: "feat_raw"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -2848,6 +2830,28 @@ layer {
     }
     bias_filler {
       type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "feat_bn"
+  type: "BN"
+  bottom: "feat_raw"
+  top: "feat"
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
+  bn_param {
+    slope_filler {
+      value: 1
+    }
+    bias_filler {
       value: 0
     }
   }
@@ -2873,11 +2877,11 @@ layer {
   bottom: "feat"
   top: "pid_score"
   param {
-    lr_mult: 1
+    lr_mult: 10
     decay_mult: 1
   }
   param {
-    lr_mult: 2
+    lr_mult: 20
     decay_mult: 0
   }
   inner_product_param {
