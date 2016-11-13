@@ -37,7 +37,7 @@ LOG="experiments/logs/${DATASET}_train_${NET}_softmax_with_pretrain.log"
 exec &> >(tee -a "$LOG")
 echo Logging output to "$LOG"
 
-mpirun -n 8 python2 tools/train_net.py --gpu ${GPU_ID} \
+mpirun -n 2 python2 tools/train_net.py --gpu ${GPU_ID} \
   --solver models/${PT_DIR}/${NET}/solver.prototxt \
   --weights output/psdb_pretrain/resnet50_softmax/resnet50_iter_8000.caffemodel \
   --imdb ${TRAIN_IMDB} \

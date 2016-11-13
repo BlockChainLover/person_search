@@ -37,7 +37,7 @@ LOG="experiments/logs/${DATASET}_train_${NET}_softmax_from_scratch.log"
 exec &> >(tee -a "$LOG")
 echo Logging output to "$LOG"
 
-mpirun -n 8 python2 tools/train_net.py --gpu ${GPU_ID} \
+mpirun -n 2 python2 tools/train_net.py --gpu ${GPU_ID} \
   --solver models/${PT_DIR}/${NET}/solver.prototxt \
   --weights data/imagenet_models/${NET}.caffemodel \
   --imdb ${TRAIN_IMDB} \
