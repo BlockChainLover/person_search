@@ -153,10 +153,13 @@ class psdb(imdb):
                 inds = np.where(gt['gt_pids'].ravel() > 0)[0]
                 if len(inds) == 0: continue
                 gt_boxes = gt_boxes[inds]
+            num_gt = gt_boxes.shape[0]
             det = np.asarray(det)
+            if det.size == 0:
+                count_gt += num_gt
+                continue
             inds = np.where(det[:, 4].ravel() >= det_thresh)[0]
             det = det[inds]
-            num_gt = gt_boxes.shape[0]
             num_det = det.shape[0]
             if num_det == 0:
                 count_gt += num_gt
@@ -199,7 +202,8 @@ class psdb(imdb):
             print '  ap = {:.2%}'.format(ap)
 
     def evaluate_search(self, gallery_det, gallery_feat, probe_feat,
-                        det_thresh=0.5, gallery_size=100, dump_json=None):
+                        det_thresh=0.5, gallery_size=100, dump_json=None,
+                        iou_thresh=0.5):
         """
         gallery_det (list of ndarray): n_det x [x1, x2, y1, y2, score] per image
         gallery_feat (list of ndarray): n_det x D features per image
@@ -224,6 +228,7 @@ class psdb(imdb):
         name_to_det_feat = {}
         for name, det, feat in zip(self._image_index,
                                    gallery_det, gallery_feat):
+            if det.size == 0: continue
             scores = det[:, 4].ravel()
             inds = np.where(scores >= det_thresh)[0]
             if len(inds) > 0:
@@ -268,13 +273,13 @@ class psdb(imdb):
                     gt[2:] += gt[:2]
                     probe_gt.append({'img': str(gallery_imname),
                                      'roi': map(float, list(gt))})
-                    iou_thresh = min(0.5, (w * h * 1.0) / ((w + 10) * (h + 10)))
+                    thresh = min(iou_thresh, (w * h * 1.0) / ((w + 10) * (h + 10)))
                     inds = np.argsort(sim)[::-1]
                     sim = sim[inds]
                     det = det[inds]
                     # only set the first matched det as true positive
                     for j, roi in enumerate(det[:, :4]):
-                        if _compute_iou(roi, gt) >= iou_thresh:
+                        if _compute_iou(roi, gt) >= thresh:
                             label[j] = 1
                             count_tp += 1
                             break
