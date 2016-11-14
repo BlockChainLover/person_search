@@ -192,7 +192,7 @@ class psdb(imdb):
 
         det_rate = count_tp * 1.0 / count_gt
         ap = average_precision_score(y_true, y_score) * det_rate
-        precision, recall, __ = precision_recall_curve(y_true, y_score)
+        precision, recall, thresholds = precision_recall_curve(y_true, y_score)
         recall *= det_rate
 
         print '{} detection:'.format('labeled only' if labeled_only else
@@ -200,6 +200,8 @@ class psdb(imdb):
         print '  recall = {:.2%}'.format(det_rate)
         if not labeled_only:
             print '  ap = {:.2%}'.format(ap)
+
+        return recall, precision, thresholds, ap, det_rate
 
     def evaluate_search(self, gallery_det, gallery_feat, probe_feat,
                         det_thresh=0.5, gallery_size=100, dump_json=None,
@@ -242,9 +244,9 @@ class psdb(imdb):
             y_true, y_score = [], []
             imgs, rois = [], []
             count_gt, count_tp = 0, 0
-            # Get L2-normalized feature vector
+            # Get feature vector
             feat_p = probe_feat[i].ravel()
-            feat_p = feat_p / np.linalg.norm(feat_p)
+            feat_p = feat_p[np.newaxis, :]
             # Ignore the probe image
             probe_imname = str(protoc['Query'][i]['imname'][0,0][0])
             probe_roi = protoc['Query'][i]['idlocate'][0,0][0].astype(np.int32)
@@ -260,12 +262,11 @@ class psdb(imdb):
                 # compute distance between probe and gallery dets
                 if gallery_imname not in name_to_det_feat: continue
                 det, feat_g = name_to_det_feat[gallery_imname]
-                # get L2-normalized feature matrix NxD
+                # get feature matrix NxD
                 assert feat_g.size == np.prod(feat_g.shape[:2])
                 feat_g = feat_g.reshape(feat_g.shape[:2])
-                feat_g = feat_g / np.linalg.norm(feat_g, axis=1, keepdims=True)
-                # compute cosine similarities
-                sim = feat_g.dot(feat_p).ravel()
+                # compute Euclidean distances
+                sim = -np.sum((feat_g - feat_p) ** 2, axis=1).ravel()
                 # assign label for each det
                 label = np.zeros(len(sim), dtype=np.int32)
                 if gt.size > 0:
@@ -294,12 +295,11 @@ class psdb(imdb):
                     if gallery_imname in tested: continue
                     if gallery_imname not in name_to_det_feat: continue
                     det, feat_g = name_to_det_feat[gallery_imname]
-                    # get L2-normalized feature matrix NxD
+                    # get feature matrix NxD
                     assert feat_g.size == np.prod(feat_g.shape[:2])
                     feat_g = feat_g.reshape(feat_g.shape[:2])
-                    feat_g = feat_g / np.linalg.norm(feat_g, axis=1, keepdims=True)
-                    # compute cosine similarities
-                    sim = feat_g.dot(feat_p).ravel()
+                    # compute Euclidean distances
+                    sim = -np.sum((feat_g - feat_p) ** 2, axis=1).ravel()
                     # guaranteed no target probe in these gallery images
                     label = np.zeros(len(sim), dtype=np.int32)
                     y_true.extend(list(label))
